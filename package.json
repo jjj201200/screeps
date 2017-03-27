@@ -4,7 +4,7 @@
   "description": "a screeps frame",
   "main": "main.js",
   "scripts": {
-    "test": "start"
+    "start": "webpack --progress --watch"
   },
   "keywords": [
     "screeps"

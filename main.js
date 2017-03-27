@@ -64,49 +64,11 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    (0, _extension2.default)();
-    (0, _creep2.default)();
-};
-
-var _extension = __webpack_require__(7);
-
-var _extension2 = _interopRequireDefault(_extension);
-
-var _creep = __webpack_require__(6);
-
-var _creep2 = _interopRequireDefault(_creep);
-
-var _task = __webpack_require__(11);
-
-var _task2 = _interopRequireDefault(_task);
-
-var _job = __webpack_require__(9);
-
-var _job2 = _interopRequireDefault(_job);
-
-var _room = __webpack_require__(10);
-
-var _room2 = _interopRequireDefault(_room);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -136,14 +98,50 @@ try {
 module.exports = g;
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+module.exports = function () {
+    __webpack_require__(2)();
+    _.assign(global, {
+        // Settings:{
+        //     global:require('./settings/global'),
+        //     creeps:require('./settings/creeps'),
+        // },
+        Rooms: __webpack_require__(4)
+    });
+    // _.assign(global.tasks,{
+    // jobs:require('./jobs/jobs'),
+    // })
+    // _.assign(global.rooms.creeps,{
+    // actions:require('./actions/actions'),
+    // })
+    // _.assign(global.rooms.structures,{
+    // controllers:require('./structures/controllers'),
+    // containers:require('./structures/containers'),
+    // extensions:require('./structures/extensions'),
+    // towers:require('./structures/towers'),
+    // roads:require('./structures/roads'),
+    // spawns:require('./structures/spawns'),
+    // walls:require('./structures/walls'),
+    // storage:require('./structures/storage'),
+    // })
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = function Action(actionName) {
-    this.actionName = actionName;
+var roomInject = __webpack_require__(3);
+module.exports = function () {
+    roomInject();
 };
 
 /***/ }),
@@ -151,14 +149,14 @@ module.exports = function Action(actionName) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
 
-
-var harvest = new Creep.action('harvest');
-module.exports = harvest;
-harvest.a = 1;
-harvest.test = function () {
-    console.log(2);
+module.exports = function () {
+    global.c = function () {
+        console.log(1);
+    };
 };
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
 /* 4 */
@@ -167,12 +165,153 @@ harvest.test = function () {
 "use strict";
 
 
-module.exports = function () {
-    _.assign(Creep, {
-        action: __webpack_require__(2)
+var Rooms = {
+    time: Game.time,
+    rooms: {},
+    cache: {
+        rooms: Game.rooms,
+        creeps: Game.creeps,
+        spawns: Game.spawns,
+        resources: Game.resources,
+        structures: Game.structures,
+        constructionSites: Game.constructionSites,
+        flags: Game.flags
+    }
+};
+module.exports = Rooms;
+
+// Object.defineProperty(Rooms, 'sources', {
+//     configurable: true,
+//     get: function () {
+//         if (_.isArray(Room._sources)) Room._sources = {};
+//         return this.v || 1;
+//     },
+//     set: function (v) {
+//         this.v = v;
+//     }
+// });
+
+//statistic source, population, hostile and structures
+Rooms.statistic = function () {
+    //cache object which is not in Game
+    _.each(Rooms.cache.rooms, function (room, roomName) {
+        //init new room object
+        Rooms.rooms[roomName] = {
+            time: Rooms.time,
+            creeps: { my: {}, hostile: {} },
+            structures: { my: {}, hostile: {} },
+            sources: {},
+            constructionSites: { my: {}, hostile: {} },
+            flags: {}
+        };
+        //init cache
+        Rooms.rooms[roomName].cache = {};
+        //sources
+        Rooms.rooms[roomName].sources = room.find(FIND_SOURCES);
+        //mineral
+        Rooms.rooms[roomName].mineral = room.find(FIND_MINERALS);
+        //hostile creeps
+        var hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+        _.each(hostileCreeps, function (creep) {
+            if (creep instanceof Creep) {
+                var creepName = creep.name;
+                var creepOwner = creep.owner.username;
+                if (_.isUndefined(Rooms.rooms[roomName].creeps.hostile[creepOwner])) Rooms.rooms[roomName].creeps.hostile[creepOwner] = {};
+                Rooms.rooms[roomName].creeps.hostile[creepOwner][creepName] = creep;
+            }
+        });
+        //hostile structures
+        var hostileStructures = room.find(FIND_HOSTILE_STRUCTURES);
+        _.each(hostileStructures, function (structure) {
+            if (structure instanceof Structure) {
+                var structureType = structure.structureType;
+                var structureId = structure.id;
+                var structureOwner = structure.owner.username;
+                if (_.isUndefined(Rooms.rooms[roomName].structures.hostile[structureOwner])) Rooms.rooms[roomName].structures.hostile[structureOwner] = {};
+                Rooms.rooms[roomName].structures.hostile[structureOwner][structureType][structureId] = structure;
+            }
+        });
+        //hostile construction sites
+        var hostileConstructionSites = room.find(FIND_HOSTILE_CONSTRUCTION_SITES);
+        _.each(hostileConstructionSites, function (constructionSite) {
+            if (constructionSite instanceof ConstructionSite) {
+                var structureType = constructionSite.structureType;
+                var structureId = constructionSite.id;
+                var structureOwner = constructionSite.owner.username;
+                if (_.isUndefined(Rooms.rooms[roomName].constructionSites.hostile[structureOwner])) Rooms.rooms[roomName].constructionSites.hostile[structureOwner] = {};
+                Rooms.rooms[roomName].constructionSites.hostile[structureOwner][structureType][structureId] = structure;
+            }
+        });
     });
-    _.assign(Creep.action, {
-        harvest: __webpack_require__(3)
+    //init room creeps
+    _.each(Rooms.cache.creeps, function (creep) {
+        if (creep instanceof Creep) {
+            var roomName = creep.room.name;
+            var creepName = creep.name;
+            if (_.isUndefined(Rooms.rooms[roomName].creeps.my)) {
+                Rooms.rooms[roomName].creeps.my = {};
+            }
+            Rooms.rooms[roomName].creeps.my[creepName] = creep;
+        }
+    });
+    //init room resources
+    _.each(Rooms.cache.resources, function (resource, b) {
+        if (resource instanceof Resource) {
+            var roomName = resource.room.name;
+            var resourceType = resource.resourceType;
+            var resourceId = resource.id;
+            if (_.isUndefined(Rooms.rooms[roomName].resources)) {
+                Rooms.rooms[roomName].resources = {};
+            }
+            if (_.isUndefined(Rooms.rooms[roomName].resources[resourceType])) {
+                Rooms.rooms[roomName].resources[resourceType] = {};
+            }
+            Rooms.rooms[roomName].resources[resourceType][resourceId] = resource;
+        }
+    });
+    //init room structures
+    _.each(Rooms.cache.structures, function (structure) {
+        if (structure instanceof Structure) {
+            var roomName = structure.room.name;
+            var structureType = structure.structureType;
+            var structureId = structure.structureType;
+            if (_.isUndefined(Rooms.rooms[roomName].structures.my)) {
+                Rooms.rooms[roomName].structures.my = {};
+            }
+            if (_.isUndefined(Rooms.rooms[roomName].structures.my[structureType])) {
+                Rooms.rooms[roomName].structures.my[structureType] = {};
+            }
+            Rooms.rooms[roomName].structures.my[structureType][structureId] = structure;
+        }
+    });
+    //init room construction sites
+    _.each(Rooms.cache.constructionSites, function (constructionSite) {
+        if (constructionSite instanceof ConstructionSite) {
+            var roomName = constructionSite.room.name;
+            var structureType = constructionSite.structureType;
+            var structureId = constructionSite.id;
+            Rooms.rooms[roomName].constructionSites.my[structureType][structureId] = structure;
+        }
+    });
+    //init room flags
+    _.each(Rooms.cache.flags, function (flag) {
+        if (flag instanceof Flag) {
+            var roomName = flag.room.name;
+            var color = flag.color;
+            var secondaryColor = flag.secondaryColor;
+            if (_.isUndefined(Rooms.rooms[roomName].flags[color])) Rooms.rooms[roomName].flags[color] = {};
+            if (_.isUndefined(Rooms.rooms[roomName].flags[color][secondaryColor])) Rooms.rooms[roomName].flags[color][secondaryColor] = {};
+            Rooms.rooms[roomName].flags[color][secondaryColor] = flag;
+        }
+    });
+    delete Rooms.cache;
+};
+//analysis which task need to be seted
+Rooms.analysis = function () {
+    _.each(Rooms.rooms, function (room, roomName) {
+        _.each(room, function (o, k) {
+            console.log(k, _.keys(o));
+        });
     });
 };
 
@@ -183,138 +322,10 @@ module.exports = function () {
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    Object.defineProperty(Creep.prototype, 'v', {
-        configurable: true,
-        get: function get() {
-            return this.v || 1;
-        },
-        set: function set(v) {
-            this.v = v;
-        }
-    });
-};
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    (0, _creep2.default)();
-    (0, _action2.default)();
-};
-
-var _creep = __webpack_require__(5);
-
-var _creep2 = _interopRequireDefault(_creep);
-
-var _action = __webpack_require__(4);
-
-var _action2 = _interopRequireDefault(_action);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    (0, _room2.default)();
-};
-
-var _room = __webpack_require__(8);
-
-var _room2 = _interopRequireDefault(_room);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function () {
-    global.c = function () {
-        console.log(1);
-    };
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _global = __webpack_require__(0);
-
-var _global2 = _interopRequireDefault(_global);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+var global = __webpack_require__(1);
 // _.each(global,function(k,v){console.log(k)})
-(0, _global2.default)();
-Creep.action.harvest.test(); //<--test
+global();
+// Creep.action.harvest.test();//<--test
 
 /***/ })
 /******/ ]);
