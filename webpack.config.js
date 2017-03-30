@@ -1,23 +1,32 @@
-const path = require('path');
-var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
-module.exports = {
-	entry: './src/main.js',
-	output: {
-		path: path.resolve(__dirname, './'),
-		filename: 'main.js',
+const path                          = require('path'),
+      LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+module.exports                      = {
+	entry  : './src/main.js',
+	output : {
+		path         : path.resolve(__dirname, './'),
+		pathinfo     : true,
+		filename     : 'main.js',
 		libraryTarget: 'commonjs2',
 	},
-	module: {
+	module : {
 		loaders: [
 			{
-				test: /\.js$/,
-				loader: 'babel-loader',
+				test   : /\.js$/,
+				loader : 'babel-loader',
+				enforce: 'pre',
 				exclude: /node_modules/,
-				query: {
-					plugins: ['lodash'],
+				query  : {
+					plugins: [
+						'lodash',
+						require.resolve('babel-plugin-add-module-exports'),
+						require.resolve("babel-plugin-dynamic-import-webpack"),
+						// https://github.com/screepers/screeps-regenerator
+						require.resolve('screeps-regenerator-preset'),
+					],
 					presets: [
-						require.resolve('babel-preset-react'), // React preset is needed only for flow support.
-						require.resolve('babel-preset-es2015')
+						// React preset is needed only for flow support.
+						require.resolve('babel-plugin-add-module-exports'),
+						require.resolve("babel-plugin-dynamic-import-webpack")
 					]
 				},
 			},
