@@ -1,2 +1,2 @@
-let T = new Classes.Manager('constructionSite');
-module.exports = T;
+import Manager from 'Classes/manager';
+export default new Manager('constructionSite');

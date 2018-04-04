@@ -1,2 +1,2 @@
-let T = new Classes.Manager('tower');
-module.exports = T;
+import Manager from 'Classes/manager';
+export default new Manager('tower');

@@ -1,8 +1,5 @@
-let Sources = new Classes.Manager('source')
-module.exports = Sources;
-Sources.execute = function () {
-
-};
+import Manager from 'Classes/manager';
+export default new Manager('source');
 // sources.add = function (sourcesArray) {
 //     if (_.isArray(sourcesArray)) {
 //         _.each(sourcesArray, (source) => {

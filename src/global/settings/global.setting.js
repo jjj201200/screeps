@@ -1,4 +1,4 @@
-module.exports = {
+export const GlobalSettings = {
     ally: ['CanisMinor'],
     lowTaskPriority: 10,
     highTaskPriority: 0,

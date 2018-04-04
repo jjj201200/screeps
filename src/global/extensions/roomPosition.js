@@ -1,20 +1,36 @@
-module.exports = function () {
-    Object.defineProperty(RoomPosition.prototype, 'entries', {
+import _ from 'lodash';
+/**
+ * 房间内坐标对象
+ */
+Object.defineProperties(RoomPosition.prototype, {
+    // 坐标上的对象
+    entries: {
         configurable: true,
+        enumerable: true,
+        /**
+         * @returns {LookAtResult[] | *}
+         */
         get: function () {
             if (_.isUndefined(this._entries)) this._entries = this.look();
             return this._entries;
         }
-    });
-    Object.defineProperty(RoomPosition.prototype, 'structure', {
+    },
+    // 建筑结构
+    structure: {
         configurable: true,
+        enumerable: true,
+        /**
+         * @returns {*|Array<AllLookAtTypes[string]>}
+         */
         get: function () {
             if (_.isUndefined(this._structure)) { this._structure = this.lookFor(LOOK_STRUCTURES); }
             return this._structure
         }
-    });
-    Object.defineProperty(RoomPosition.prototype, 'terrain', {
+    },
+    // 地形
+    terrain: {
         configurable: true,
+        enumerable: true,
         get: function () {
             if (_.isUndefined(this._terrain)) {
                 this._terrain = _.filter(this.entries, (entry) => {
@@ -23,9 +39,14 @@ module.exports = function () {
             }
             return this._terrain
         }
-    });
-    Object.defineProperty(RoomPosition.prototype, 'adjacent', {
+    },
+    //获取该坐标点周围8格的坐标对象
+    adjacent: {
         configurable: true,
+        enumerable: true,
+        /**
+         * @returns {Array}
+         */
         get: function () {
             if (_.isUndefined(this._adjacent)) {
                 this._adjacent = [];
@@ -39,5 +60,5 @@ module.exports = function () {
             }
             return this._adjacent;
         }
-    });
-};
+    }
+});

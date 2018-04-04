@@ -1,9 +1,12 @@
-module.exports = function(){
-    Object.defineProperty(Creep.prototype, 'job', {
+import _ from 'lodash';
+
+Object.defineProperties(Creep.prototype, {
+    job: {
         configurable: true,
+        enumerable: true,
         get: function () {
-            if (_.isUndefined(this._hostileCreeps)) this._hostileCreeps = Rooms[this.name].creeps.hostile;
-            return this._hostileCreeps;
+            if (_.isUndefined(this._job)) this._job = undefined;
+            return this._job;
         }
-    });
-};
+    }
+});

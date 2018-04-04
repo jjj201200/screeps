@@ -1,2 +1,2 @@
-let T = new Classes.Manager('spawn');
-module.exports = T;
+import Manager from 'Classes/manager';
+export default new Manager('spawn');

@@ -1,35 +1,49 @@
+import _ from 'lodash';
+import Manager from 'Classes/manager';
 module.exports = function () {
-    Object.defineProperty(Manager.prototype, 'my', {
-        configurable: true,
-        writable: false,
-        enumerable: true,
-        get: function () {
-            if (_.isUndefined(Memory[_.upperFirst(this.name + 's')]._my)) {
-                Memory[_.upperFirst(this.name + 's')]._my = _.filter(global[_.upperFirst(this.name + 's')][this.name + 's'], (entry) => { return entry.my == true; });
+    Object.defineProperties(Manager.prototype, {
+        my: {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+                const names = this.name + 's';
+                const Names = _.upperFirst(names);
+                if (_.isUndefined(Memory[Names]._my)) {
+                    Memory[Names]._my = _.filter(global[Names][names], (entry) => { return entry.my == true; });
+                }
+                return Memory[Names]._my;
             }
-            return Memory[_.upperFirst(this.name + 's')]._my;
-        }
-    });
-    Object.defineProperty(Manager.prototype, 'ally', {
-        configurable: true,
-        writable: false,
-        enumerable: true,
-        get: function () {
-            if (_.isUndefined(Memory[_.upperFirst(this.name + 's')]._ally)) {
-                Memory[_.upperFirst(this.name + 's')]._ally = _.filter(global[_.upperFirst(this.name + 's')][this.name + 's'], (entry) => { return Settings.ally.indexOf(entry.onwer.username) >= 0 });
+        },
+        ally: {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+                const names = this.name + 's';
+                const Names = _.upperFirst(names);
+                if (_.isUndefined(Memory[Names]._ally)) {
+                    Memory[Names]._ally = _.filter(
+                        global[Names][names],
+                        (entry) => Settings.ally.indexOf(entry.onwer.username) >= 0,
+                    );
+                }
+                return Memory[Names]._ally;
             }
-            return Memory[_.upperFirst(this.name + 's')]._ally;
-        }
-    });
-    Object.defineProperty(Manager.prototype, 'hostile', {
-        configurable: true,
-        writable: false,
-        enumerable: true,
-        get: function () {
-            if (_.isUndefined(Memory[_.upperFirst(this.name + 's')]._hostile)) {
-                Memory[_.upperFirst(this.name + 's')]._hostile = _.filter(global[_.upperFirst(this.name + 's')][this.name + 's'], (entry) => { return Settings.ally.indexOf(entry.onwer.username) < 0 });
+        },
+        hostile: {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+                const names = this.name + 's';
+                const Names = _.upperFirst(names);
+                if (_.isUndefined(Memory[Names]._hostile)) {
+                    Memory[Names]._hostile = _.filter(
+                        global[Names][names],
+                        (entry) => Settings.ally.indexOf(entry.onwer.username) < 0,
+                    );
+                }
+                return Memory[Names]._hostile;
             }
-            return Memory[_.upperFirst(this.name + 's')]._hostile;
         }
+
     });
 };

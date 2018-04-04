@@ -1,4 +1,4 @@
-let Rooms = new
+const _ = require('lodash');
 let Rooms = {
     time: Game.time,
     rooms: {},
@@ -11,7 +11,7 @@ let Rooms = {
         constructionSites: Game.constructionSites,
         flags: Game.flags,
     },
-    statisticed: false,
+    statistics: false,
 };
 module.exports = Rooms;
 Rooms.execute = function () {
@@ -68,7 +68,7 @@ Rooms.statistic = function () {
     //init room flags
     _.each(Rooms.cache.flags, (flag) => { if (flag instanceof Flag) { Flags.flags[flag.id] = flag; } });
     delete Rooms.cache;
-    Rooms.statisticed = true;
+    Rooms.statistics = true;
 };
 // Object.defineProperty(Rooms.prototype, 'energy', {
 //     configurable: true,

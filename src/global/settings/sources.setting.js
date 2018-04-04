@@ -1,3 +1,3 @@
-module.exports = {
+export const SourcesSettings = {
     reserveEnergy: 0.7
 };
